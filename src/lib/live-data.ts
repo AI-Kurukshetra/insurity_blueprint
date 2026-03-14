@@ -1,14 +1,5 @@
-import type { ClaimRecord, PolicyRecord } from "@/lib/sample-data";
-import {
-  aiTriageCards as fallbackAiTriageCards,
-  brokerAccounts as fallbackBrokerAccounts,
-  claimQueue as fallbackClaims,
-  dashboardMetrics as fallbackDashboardMetrics,
-  dashboardTimeline as fallbackDashboardTimeline,
-  policies as fallbackPolicies,
-  portalItems as fallbackPortalItems,
-} from "@/lib/sample-data";
 import type { UserProfile } from "@/lib/auth";
+import type { ClaimRecord, PolicyRecord } from "@/lib/records";
 import { currency, supabaseConfig } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -614,33 +605,37 @@ function deriveTriageCard(claim: ClaimTriageRow, documentCount: number | null, e
   };
 }
 
-function fallbackAiTriageRecords(): AiTriageCardRecord[] {
-  return fallbackAiTriageCards.map((card) => ({
-    claimId: card.claimId,
-    title: card.title,
-    label: card.label,
-    tone: card.tone,
-    summary: card.summary,
-    reasons: [...card.reasons],
-  }));
+function emptyDashboardMetricRecords(): DashboardMetricRecord[] {
+  return [
+    {
+      label: "Policies in force",
+      value: "0",
+      delta: "no accessible policies",
+      tone: "stable",
+    },
+    {
+      label: "Open claims",
+      value: "0",
+      delta: "queue clear",
+      tone: "healthy",
+    },
+    {
+      label: "Premium in force",
+      value: currency.format(0),
+      delta: "awaiting portfolio",
+      tone: "stable",
+    },
+    {
+      label: "AI triage readiness",
+      value: "0%",
+      delta: "no live claims scored",
+      tone: "stable",
+    },
+  ];
 }
 
-function fallbackDashboardMetricRecords(): DashboardMetricRecord[] {
-  return fallbackDashboardMetrics.map((metric) => ({
-    label: metric.label,
-    value: metric.value,
-    delta: metric.delta,
-    tone: metric.tone,
-  }));
-}
-
-function fallbackDashboardTimelineRecords(): DashboardTimelineRecord[] {
-  return fallbackDashboardTimeline.map((event) => ({
-    time: event.time,
-    title: event.title,
-    detail: event.detail,
-    dot: event.dot,
-  }));
+function unavailableAiTriageRecords(): AiTriageCardRecord[] {
+  return [];
 }
 
 function formatCompactCurrency(value: number) {
@@ -874,60 +869,37 @@ function buildDashboardBrokerAccounts(
     .slice(0, 4);
 }
 
-function fallbackClaimEvents(claimNumber: string): ClaimEventRecord[] {
-  return [
-    {
-      id: `${claimNumber}-evt-1`,
-      eventType: "Intake logged",
-      notes: "Fallback timeline event shown until Supabase claim events are configured.",
-      createdAt: "Demo data",
-    },
-    {
-      id: `${claimNumber}-evt-2`,
-      eventType: "Coverage review",
-      notes: "Initial review is pending live event history for this claim.",
-      createdAt: "Demo data",
-    },
-  ];
-}
-
-function fallbackPayments(claimNumber: string): PaymentRecord[] {
-  return [
-    {
-      id: `${claimNumber}-pay-1`,
-      amount: 25000,
-      paymentType: "Advance",
-      status: "Pending",
-      referenceNumber: "Demo payment",
-      createdAt: "Demo data",
-    },
-  ];
-}
-
-function buildFallbackPortalData(): PortalDataResult {
+function buildUnavailablePortalData(message: string): PortalDataResult {
   return {
-    policy: fallbackPolicies[0],
-    items: fallbackPortalItems.map((item) => ({
-      title: item.title,
-      detail: item.detail,
-      state: item.state,
-      tone: item.tone as PortalItemRecord["tone"],
-    })),
+    policy: null,
+    items: [
+      {
+        title: "Portal setup required",
+        detail: "This portal needs a live Supabase connection and at least one assigned policy before coverage data can appear.",
+        state: "Blocked",
+        tone: "watch",
+      },
+      {
+        title: "Claims and documents unlock after assignment",
+        detail: "Once a policy is linked and claims exist, the related records will render here automatically.",
+        state: "Pending",
+        tone: "stable",
+      },
+    ],
     mode: "fallback",
-    message: "Showing seeded portal data until a matching live policy is available.",
+    message,
   };
 }
 
-function buildBrokerFallbackAccounts() {
-  return fallbackBrokerAccounts.map((account) => ({
-    name: account.name,
-    owner: account.owner,
-    health: account.health,
-    tone: account.tone,
-    renewal: account.renewal,
-    openClaims: account.openClaims,
-    premium: account.premium,
-  }));
+function emptyDashboardTimelineRecords(message: string): DashboardTimelineRecord[] {
+  return [
+    {
+      time: "No activity",
+      title: "Operational timeline unavailable",
+      detail: message,
+      dot: "bg-stone-400",
+    },
+  ];
 }
 
 function toneFromPortfolio(policy: PolicyRow, openClaims: number): BrokerBookRecord["tone"] {
@@ -1002,9 +974,9 @@ async function loadScopedIds(
 export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
   if (!supabaseConfig.isConfigured) {
     return {
-      records: fallbackPolicies,
+      records: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Showing seeded demo policies.",
+      message: "Supabase keys are missing. Policy data is unavailable until live configuration is added.",
     };
   }
 
@@ -1019,10 +991,10 @@ export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
 
   if (error || !data?.length) {
     return {
-      records: error ? fallbackPolicies : [],
+      records: [],
       mode: error ? "fallback" : "live",
       message: error
-        ? "Supabase connected, but policies table is unavailable. Showing seeded demo data."
+        ? "Supabase connected, but policy data is unavailable."
         : "No policies are assigned to this account yet.",
     };
   }
@@ -1037,9 +1009,9 @@ export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
 export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
   if (!supabaseConfig.isConfigured) {
     return {
-      records: fallbackClaims,
+      records: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Showing seeded demo claims.",
+      message: "Supabase keys are missing. Claim data is unavailable until live configuration is added.",
     };
   }
 
@@ -1054,10 +1026,10 @@ export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
 
   if (error || !data?.length) {
     return {
-      records: error ? fallbackClaims : [],
+      records: [],
       mode: error ? "fallback" : "live",
       message: error
-        ? "Supabase connected, but claims table is unavailable. Showing seeded demo data."
+        ? "Supabase connected, but claim data is unavailable."
         : "No claims are assigned to this account yet.",
     };
   }
@@ -1072,9 +1044,9 @@ export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
 export async function loadAiTriage(limit = 3): Promise<AiTriageDataResult> {
   if (!supabaseConfig.isConfigured) {
     return {
-      records: fallbackAiTriageRecords(),
+      records: unavailableAiTriageRecords(),
       mode: "fallback",
-      message: "Supabase keys are missing. Showing seeded AI triage recommendations.",
+      message: "Supabase keys are missing. AI triage is unavailable until live claims are configured.",
     };
   }
 
@@ -1089,9 +1061,9 @@ export async function loadAiTriage(limit = 3): Promise<AiTriageDataResult> {
 
   if (error) {
     return {
-      records: fallbackAiTriageRecords(),
+      records: unavailableAiTriageRecords(),
       mode: "fallback",
-      message: "Claim triage query failed. Showing seeded AI recommendations.",
+      message: "Claim triage query failed. AI recommendations are unavailable right now.",
     };
   }
 
@@ -1171,11 +1143,13 @@ export async function loadDashboardSummary(
 ): Promise<DashboardSummaryResult> {
   if (!supabaseConfig.isConfigured) {
     return {
-      metrics: fallbackDashboardMetricRecords(),
-      timeline: fallbackDashboardTimelineRecords(),
-      brokerAccounts: buildBrokerFallbackAccounts(),
+      metrics: emptyDashboardMetricRecords(),
+      timeline: emptyDashboardTimelineRecords(
+        "Connect Supabase and load live records to populate the dashboard timeline."
+      ),
+      brokerAccounts: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Showing seeded dashboard summaries.",
+      message: "Supabase keys are missing. Dashboard data is unavailable until live configuration is added.",
     };
   }
 
@@ -1220,11 +1194,13 @@ export async function loadDashboardSummary(
 
   if (policiesError || claimsError) {
     return {
-      metrics: fallbackDashboardMetricRecords(),
-      timeline: fallbackDashboardTimelineRecords(),
-      brokerAccounts: buildBrokerFallbackAccounts(),
+      metrics: emptyDashboardMetricRecords(),
+      timeline: emptyDashboardTimelineRecords(
+        "Dashboard queries failed before live activity could be loaded."
+      ),
+      brokerAccounts: [],
       mode: "fallback",
-      message: "Dashboard summary queries failed. Showing seeded dashboard summaries.",
+      message: "Dashboard summary queries failed. Live summary data is unavailable right now.",
     };
   }
 
@@ -1267,11 +1243,11 @@ export async function loadDashboardSummary(
       documentsError ? new Map<string, number>() : documentCounts,
       eventsError ? new Map<string, number>() : eventCounts
     ),
-    timeline: timeline.length > 0 ? timeline : fallbackDashboardTimelineRecords(),
-    brokerAccounts:
-      brokerAccounts.length > 0
-        ? brokerAccounts
-        : buildBrokerFallbackAccounts().slice(0, 4),
+    timeline:
+      timeline.length > 0
+        ? timeline
+        : emptyDashboardTimelineRecords("No recent live activity is available yet."),
+    brokerAccounts,
     mode:
       documentsError || eventsError || paymentsError
         ? "fallback"
@@ -1531,35 +1507,14 @@ export async function loadPortalDocumentsData(
 }
 
 export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailResult> {
-  const fallbackClaim = fallbackClaims.find((claim) => claim.id === claimNumber);
-
   if (!supabaseConfig.isConfigured) {
     return {
-      claim: fallbackClaim
-        ? {
-            uuid: null,
-            claimNumber: fallbackClaim.id,
-            status: fallbackClaim.status,
-            severity: fallbackClaim.tags[0] ?? "Severity unknown",
-            reserveAmount: fallbackClaim.reserve,
-            description: fallbackClaim.summary,
-            incidentDate: fallbackClaim.stage,
-            holderName: fallbackClaim.account,
-            policyNumber: fallbackClaim.tags[1] ?? "Policy pending",
-            policyId: null,
-            policyCoverage: "Coverage summary available when live policy data is configured.",
-            policyStatus: "Demo policy",
-            policyRenewal: "Not set",
-            policyPremium: 0,
-          }
-        : null,
-      events: fallbackClaim ? fallbackClaimEvents(fallbackClaim.id) : [],
+      claim: null,
+      events: [],
       documents: [],
-      payments: fallbackClaim ? fallbackPayments(fallbackClaim.id) : [],
+      payments: [],
       mode: "fallback",
-      message: fallbackClaim
-        ? "Showing seeded claim details until Supabase is configured."
-        : "Claim not found in seeded demo data.",
+      message: "Live claim detail requires Supabase configuration.",
     };
   }
 
@@ -1574,32 +1529,14 @@ export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailR
 
   if (error || !data) {
     return {
-      claim: fallbackClaim
-        ? {
-            uuid: null,
-            claimNumber: fallbackClaim.id,
-            status: fallbackClaim.status,
-            severity: fallbackClaim.tags[0] ?? "Severity unknown",
-            reserveAmount: fallbackClaim.reserve,
-            description: fallbackClaim.summary,
-            incidentDate: fallbackClaim.stage,
-            holderName: fallbackClaim.account,
-            policyNumber: fallbackClaim.tags[1] ?? "Policy pending",
-            policyId: null,
-            policyCoverage: "Coverage summary available when live policy data is configured.",
-            policyStatus: "Demo policy",
-            policyRenewal: "Not set",
-            policyPremium: 0,
-          }
-        : null,
-      events: fallbackClaim ? fallbackClaimEvents(fallbackClaim.id) : [],
+      claim: null,
+      events: [],
       documents: [],
-      payments: fallbackClaim ? fallbackPayments(fallbackClaim.id) : [],
-      mode: fallbackClaim ? "fallback" : "live",
-      message:
-        error && fallbackClaim
-          ? "Claim detail query failed. Showing seeded fallback detail."
-          : "Claim not found or not accessible in Supabase.",
+      payments: [],
+      mode: error ? "fallback" : "live",
+      message: error
+        ? "Claim detail query failed. Live claim detail is unavailable right now."
+        : "Claim not found or not accessible in Supabase.",
     };
   }
 
@@ -1684,7 +1621,9 @@ export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailR
 
 export async function loadPortalData(profile: UserProfile | null): Promise<PortalDataResult> {
   if (!supabaseConfig.isConfigured || !profile) {
-    return buildFallbackPortalData();
+    return buildUnavailablePortalData(
+      "Live portal data requires Supabase configuration and an authenticated assigned account."
+    );
   }
 
   const client = await createSupabaseServerClient();
@@ -1727,7 +1666,9 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
   const { data, error } = await query;
 
   if (error) {
-    return buildFallbackPortalData();
+    return buildUnavailablePortalData(
+      "Portal data could not be loaded from Supabase."
+    );
   }
 
   if (!data?.length) {
@@ -1802,9 +1743,9 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
 export async function loadBrokerData(profile: UserProfile | null): Promise<BrokerDataResult> {
   if (!supabaseConfig.isConfigured) {
     return {
-      accounts: buildBrokerFallbackAccounts(),
+      accounts: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Showing seeded broker accounts.",
+      message: "Supabase keys are missing. Broker data is unavailable until live configuration is added.",
     };
   }
 
@@ -1847,12 +1788,11 @@ export async function loadBrokerData(profile: UserProfile | null): Promise<Broke
 
   if (policiesError || claimsError || !policiesData?.length) {
     return {
-      accounts:
-        policiesError || claimsError ? buildBrokerFallbackAccounts() : [],
+      accounts: [],
       mode: policiesError || claimsError ? "fallback" : "live",
       message:
         policiesError || claimsError
-          ? "Live broker book is unavailable. Showing seeded account summaries."
+          ? "Live broker book is unavailable right now."
           : "No accounts are assigned to this broker yet.",
     };
   }

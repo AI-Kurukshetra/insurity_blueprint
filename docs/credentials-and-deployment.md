@@ -7,10 +7,6 @@
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Legacy fallback still supported in code:
-
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-
 ### Needed Only If We Build Privileged Server Flows
 
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -47,6 +43,11 @@ Document upload note:
 - if uploads fail with a row-level security error, the most likely cause is that this SQL has not been applied yet in the active Supabase project
 - for a paste-ready repair script that also verifies the bucket and policies, use `supabase/document-upload-repair.sql`
 - if admin upload works but broker upload fails, use `supabase/broker-upload-diagnosis.sql` to verify the broker is assigned to the claim's underlying policy
+
+Optional placeholder-data note:
+
+- the app no longer ships with bundled dummy runtime records
+- if you want placeholder records for testing, run `supabase/optional-demo-seed.sql` manually in Supabase after the main SQL files
 
 Optional if already configured:
 
@@ -97,6 +98,8 @@ Current local project status:
 5. Leave `SUPABASE_SERVICE_ROLE_KEY` empty unless a new privileged server-side flow is added.
 6. Trigger the first deployment.
 7. Open the deployed URL and run the route smoke test from `docs/mvp-readiness-checklist.md`.
+
+For the full click-by-click UI flow, use `docs/vercel-ui-deployment-guide.md`.
 
 ### Vercel Preparation Checklist
 

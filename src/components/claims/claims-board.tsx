@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LiveStatusBanner } from "@/components/live-status-banner";
-import type { ClaimRecord } from "@/lib/sample-data";
+import type { ClaimRecord } from "@/lib/records";
 import { currency } from "@/lib/supabase";
 
 type ClaimsBoardProps = {
@@ -18,7 +18,7 @@ export function ClaimsBoard({ records, mode, message }: ClaimsBoardProps) {
           <h2 className="section-title">Adjuster queue</h2>
         </div>
         <span className={`status-pill ${mode === "live" ? "healthy" : "watch"}`}>
-          {mode === "live" ? "Live claims" : "Seeded claims"}
+          {mode === "live" ? "Live claims" : "Limited claims"}
         </span>
       </div>
 

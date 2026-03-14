@@ -235,8 +235,8 @@ export default async function Home() {
             <article className="rounded-[1.3rem] border border-stone-200 bg-stone-50/80 p-4">
               <p className="font-semibold text-stone-950">Claims and policies</p>
               <p className="mt-2 text-sm leading-7 text-stone-700">
-                Home dashboard summaries now read live policy and claim data, with seeded
-                fallback only when Supabase signals are unavailable.
+                Home dashboard summaries now read live policy and claim data directly from
+                Supabase, without bundled dummy records.
               </p>
             </article>
             <article className="rounded-[1.3rem] border border-stone-200 bg-stone-50/80 p-4">

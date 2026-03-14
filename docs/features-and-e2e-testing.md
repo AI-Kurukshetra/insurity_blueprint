@@ -112,6 +112,10 @@ Only if something is broken:
 - [supabase/document-upload-repair.sql](/D:/Projects/smartclaim-pro/supabase/document-upload-repair.sql)
 - [supabase/broker-upload-diagnosis.sql](/D:/Projects/smartclaim-pro/supabase/broker-upload-diagnosis.sql)
 
+Optional if you want placeholder live data in Supabase:
+
+- [supabase/optional-demo-seed.sql](/D:/Projects/smartclaim-pro/supabase/optional-demo-seed.sql)
+
 ## 4. Required Environment Variables
 
 Your `.env.local` should contain:
@@ -921,7 +925,7 @@ Expected results:
 - claims section only shows claims for assigned policy
 - documents section only shows documents tied to assigned policy/claims
 
-Concrete example using the sample data:
+Concrete example using the manually created or optionally seeded data:
 
 - holder should reflect `Atlas Commerce Group`
 - at least one claim should be visible after claim creation

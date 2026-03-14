@@ -1,5 +1,5 @@
 import { LiveStatusBanner } from "@/components/live-status-banner";
-import type { PolicyRecord } from "@/lib/sample-data";
+import type { PolicyRecord } from "@/lib/records";
 import { currency } from "@/lib/supabase";
 
 type PoliciesTableProps = {
@@ -33,7 +33,7 @@ export function PoliciesTable({ records, mode, message }: PoliciesTableProps) {
         </article>
         <article className="metric-card">
           <p className="metric-label">Data mode</p>
-          <p className="metric-value text-xl">{mode === "live" ? "Live" : "Seeded"}</p>
+          <p className="metric-value text-xl">{mode === "live" ? "Live" : "Limited"}</p>
         </article>
       </div>
 

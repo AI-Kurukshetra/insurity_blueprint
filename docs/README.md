@@ -10,6 +10,7 @@ This folder is the working context for the hackathon build.
 - `credentials-and-deployment.md`: credentials checklist, env vars, and repo/deploy steps
 - `features-and-e2e-testing.md`: complete feature overview and manual end-to-end testing flow
 - `mvp-readiness-checklist.md`: final pre-demo and pre-deploy verification checklist
+- `vercel-ui-deployment-guide.md`: step-by-step Vercel dashboard deployment guide
 - `demo-script.md`: short presentation flow for judges
 - `progress-tracker.md`: completed work, pending items, and next priorities
 

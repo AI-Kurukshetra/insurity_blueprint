@@ -33,7 +33,7 @@ src/
     auth.ts
     auth-server.ts
     live-data.ts
-    sample-data.ts
+    records.ts
     supabase.ts
     supabase-server.ts
     supabase-middleware.ts
@@ -237,8 +237,8 @@ Current approach:
 ## Current Data Access Pattern
 
 - `src/lib/live-data.ts` is the main server-side data loading layer
-- when Supabase is not configured, the UI falls back to seeded records from `src/lib/sample-data.ts`
 - when Supabase is configured, reads rely on RLS plus explicit assignment tables
+- when Supabase is not configured or a query fails, the UI now shows empty or limited states instead of bundled dummy records
 - AI triage cards are currently derived server-side from live claim, document, and claim-event records
 - home dashboard metrics, timeline, and broker-highlight cards are also derived server-side from live Supabase data
 - portal and broker workspaces now use explicit assignment-scoped loaders instead of broad shared list reads
@@ -246,14 +246,15 @@ Current approach:
 
 ## Important Implementation Note
 
-For the hackathon, it is acceptable to start with seeded mock data and then swap high-value flows to Supabase progressively. Do not block UI progress on full backend completion.
+For the hackathon, it is acceptable to use an optional Supabase seed script for testing, but the app bundle itself should not ship with dummy runtime records.
 
 ## Starter Schema
 
-Use `supabase/schema.sql` as the first SQL pass in the Supabase SQL editor. It creates the main tables, adds demo read policies, and seeds a small set of policy and claim data.
+Use `supabase/schema.sql` as the first SQL pass in the Supabase SQL editor. It creates the main tables and access policies without inserting placeholder business data.
 
 Additional incremental SQL:
 
 - `supabase/claim-insert-policy.sql` for authenticated claim inserts
 - `supabase/claim-workflow-policies.sql` for admin policy creation, claim-event inserts, and payment inserts
 - `supabase/document-upload-policy.sql` for document records and Storage access
+- `supabase/optional-demo-seed.sql` only if you want placeholder live records in Supabase for testing

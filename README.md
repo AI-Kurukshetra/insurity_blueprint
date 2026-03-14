@@ -57,6 +57,7 @@ Starter SQL schema:
 - `supabase/claim-insert-policy.sql`
 - `supabase/claim-workflow-policies.sql`
 - `supabase/document-upload-policy.sql`
+- `supabase/optional-demo-seed.sql` (optional, only if you want placeholder records in Supabase)
 - `supabase/document-upload-repair.sql`
 - `supabase/broker-upload-diagnosis.sql`
 
@@ -84,7 +85,7 @@ Admin policy creation and claim-event writes also require
 - `policy_assignments` links users to policies for policyholder and broker access
 - `claim_assignments` links adjusters or admins to specific claims when needed
 - profile and policy triggers auto-create policy assignments when `organization_name` matches `holder_name`
-- once Supabase is configured, pages now prefer assigned live data over demo fallbacks
+- pages now rely on live Supabase data or explicit empty states; bundled demo records have been removed
 - admins can manage assignments from `/admin`
 - `/portal` now shows accessible live claims and uploaded evidence in addition to policy summary
 - empty states now explain when assignments or setup prerequisites are missing

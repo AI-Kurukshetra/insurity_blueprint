@@ -46,8 +46,8 @@ Product direction:
 
 - added Supabase client config
 - wired local environment values
-- added live read support for policies with fallback seeded data
-- added live read support for claims with fallback seeded data
+- added live read support for policies
+- added live read support for claims
 - added live claim detail loader for claim, document, and event data
 - added payment history loading on claim detail
 - added live read support for portal, broker, document, and assignment views
@@ -55,6 +55,7 @@ Product direction:
 - added incremental SQL for authenticated claim inserts in `supabase/claim-insert-policy.sql`
 - added incremental SQL for admin policy creation, claim-event inserts, and payment writes in `supabase/claim-workflow-policies.sql`
 - added incremental SQL for document uploads and Storage access in `supabase/document-upload-policy.sql`
+- removed bundled dummy runtime data and moved optional placeholder records to `supabase/optional-demo-seed.sql`
 
 ### Authentication
 
@@ -77,7 +78,7 @@ Product direction:
 ### UX polish
 
 - improved typography and visual hierarchy
-- replaced seeded home dashboard summaries with live-backed metrics, timeline activity, and broker highlights
+- replaced bundled dummy dashboard summaries with live-backed metrics, timeline activity, and broker highlights
 - improved portal, broker, and admin empty states for missing assignments or setup prerequisites
 - verified the app still builds cleanly
 
@@ -112,7 +113,6 @@ Product direction:
 ## In Progress
 
 - maintain and extend authenticated MVP flows
-- reduce remaining seeded fallbacks where useful
 - prepare deployment and demo readiness artifacts
 - keep docs synchronized with implementation changes
 
@@ -129,7 +129,7 @@ Product direction:
 
 ### Demo readiness
 
-- more realistic seeded or live records
+- more realistic live records
 - final submission polish, deployment, and demo rehearsal
 
 ## Pending Medium Priority
