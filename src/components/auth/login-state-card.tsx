@@ -22,21 +22,20 @@ export function LoginStateCard() {
   if (!isAuthenticated) {
     return (
       <article className="rounded-[1.8rem] border border-stone-200 bg-[#f7f1e5] p-6 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
-        <p className="section-eyebrow">Auth notes</p>
-        <h2 className="section-title">What this flow expects</h2>
+        <p className="section-eyebrow">Platform Overview</p>
+        <h2 className="section-title">Role-based insurance operations</h2>
         <div className="mt-5 space-y-4 text-sm leading-7 text-stone-700">
           <p>
-            Sign in with an account that has already been provisioned for the correct workspace role.
+            SmartClaim Pro connects administrators, brokers, adjusters, and policyholders in one secure workspace.
           </p>
           <p>
-            If email confirmation is enabled, use the verification link in your inbox before signing in.
+            Teams can manage policies, track claims, upload evidence, review claim timelines, and monitor AI-assisted triage from one app.
           </p>
           <p>
-            Supported roles are policyholder, broker, adjuster, and admin. Access to the
-            claims, portal, and broker routes is role-aware.
+            Each role sees only the routes and records assigned to them, so claims and account access stay scoped correctly.
           </p>
           <p>
-            New accounts are created by administrators. If you need access, request account setup from an admin.
+            If you need access, request an account from an administrator and sign in with the credentials provided.
           </p>
         </div>
       </article>
