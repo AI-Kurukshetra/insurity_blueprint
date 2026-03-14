@@ -61,6 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentProfile = profileRef.current;
       const currentUserId = currentSession?.user?.id ?? null;
       const nextUserId = nextSession?.user?.id ?? null;
+      const isSameAuthenticatedUser = Boolean(
+        currentProfile && currentUserId && currentUserId === nextUserId
+      );
       const shouldReloadProfile =
         forceProfileReload || !currentProfile || currentUserId !== nextUserId;
 
@@ -79,7 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setLoading(true);
+      if (!isSameAuthenticatedUser) {
+        setLoading(true);
+      }
 
       const { data, error } = await ensureUserProfile(client, nextSession.user);
 
@@ -88,8 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (error) {
-        setProfile(null);
-        setAuthError(error.message);
+        if (!isSameAuthenticatedUser) {
+          setProfile(null);
+          setAuthError(error.message);
+        }
         setLoading(false);
         return;
       }
