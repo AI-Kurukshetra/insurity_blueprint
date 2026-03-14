@@ -43,7 +43,7 @@ export function ClaimSubmissionForm({
   const [message, setMessage] = useState(
     initialPolicies.length === 0
       ? "No policies are available for claim submission yet."
-      : "Create a new claim directly in Supabase. This requires the insert policy in the incremental SQL file."
+      : "Create a new claim and route it into the operations queue."
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -51,7 +51,7 @@ export function ClaimSubmissionForm({
 
     if (!supabaseConfig.isConfigured) {
       setStatus("error");
-      setMessage("Supabase configuration is missing.");
+      setMessage("Claim submission is not available right now.");
       return;
     }
 
@@ -96,8 +96,7 @@ export function ClaimSubmissionForm({
       <p className="section-eyebrow">New Claim</p>
       <h2 className="section-title">Submit a first notice of loss</h2>
       <p className="mt-3 text-sm leading-7 text-stone-700">
-        This is the next critical workflow after authentication. It creates a claim
-        record in Supabase and drops it into the live claims queue.
+        Open a new claim, capture the initial loss details, and send it to the operations queue.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -112,7 +111,7 @@ export function ClaimSubmissionForm({
             className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
           >
             {policies.length === 0 ? (
-              <option value="">No live policies available</option>
+              <option value="">No policies available</option>
             ) : null}
             {policies.map((policy) => (
               <option key={policy.id} value={policy.id}>

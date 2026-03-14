@@ -3,29 +3,14 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
-import {
-  ensureUserProfile,
-  getDefaultRouteForRole,
-  roleLabels,
-  userRoles,
-  type UserRole,
-} from "@/lib/auth";
+import { ensureUserProfile, getDefaultRouteForRole, roleLabels } from "@/lib/auth";
 import { createSupabaseBrowserClient, supabaseConfig } from "@/lib/supabase";
 
-type AuthMode = "sign-in" | "create-account" | "forgot-password";
+type AuthMode = "sign-in" | "forgot-password";
 
 type SignInState = {
   email: string;
   password: string;
-};
-
-type SignUpState = {
-  fullName: string;
-  organizationName: string;
-  role: UserRole;
-  email: string;
-  password: string;
-  confirmPassword: string;
 };
 
 type RecoveryState = {
@@ -37,32 +22,9 @@ const initialSignInState: SignInState = {
   password: "",
 };
 
-const initialSignUpState: SignUpState = {
-  fullName: "",
-  organizationName: "",
-  role: "policyholder",
-  email: "",
-  password: "",
-  confirmPassword: "",
-};
-
 const initialRecoveryState: RecoveryState = {
   email: "",
 };
-
-function getLoginRedirectUrl(nextPath: string | null) {
-  if (typeof window === "undefined") {
-    return undefined;
-  }
-
-  const url = new URL("/login", window.location.origin);
-
-  if (nextPath) {
-    url.searchParams.set("next", nextPath);
-  }
-
-  return url.toString();
-}
 
 function getResetRedirectUrl() {
   if (typeof window === "undefined") {
@@ -76,7 +38,7 @@ function getFriendlyAuthMessage(message: string) {
   const normalized = message.toLowerCase();
 
   if (normalized.includes("email rate limit") || normalized.includes("email limit")) {
-    return "Supabase email sending is rate-limited right now. For local testing, disable email confirmation in Supabase Auth or configure custom SMTP.";
+    return "Email sending is temporarily rate-limited. Please wait a moment and try again.";
   }
 
   if (normalized.includes("invalid login credentials")) {
@@ -91,11 +53,10 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
   const { isAuthenticated, profile } = useAuth();
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [signInState, setSignInState] = useState(initialSignInState);
-  const [signUpState, setSignUpState] = useState(initialSignUpState);
   const [recoveryState, setRecoveryState] = useState(initialRecoveryState);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState(
-    "Sign in with your SmartClaim Pro account, or create a new role-based workspace profile."
+    "Sign in with your SmartClaim Pro account. New accounts are created by an administrator."
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -104,7 +65,7 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
 
     if (!supabaseConfig.isConfigured) {
       setStatus("error");
-      setMessage("Supabase keys are missing. Add them before testing authentication.");
+      setMessage("Authentication is not available yet.");
       return;
     }
 
@@ -146,94 +107,12 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
     }
   }
 
-  async function handleCreateAccount(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!supabaseConfig.isConfigured) {
-      setStatus("error");
-      setMessage("Supabase keys are missing. Add them before testing authentication.");
-      return;
-    }
-
-    if (signUpState.password !== signUpState.confirmPassword) {
-      setStatus("error");
-      setMessage("Password confirmation does not match.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const client = createSupabaseBrowserClient();
-      const { data, error } = await client.auth.signUp({
-        email: signUpState.email,
-        password: signUpState.password,
-        options: {
-          emailRedirectTo: getLoginRedirectUrl(nextPath),
-          data: {
-            full_name: signUpState.fullName,
-            organization_name: signUpState.organizationName,
-            role: signUpState.role,
-          },
-        },
-      });
-
-      if (error || !data.user) {
-        setStatus("error");
-        setMessage(getFriendlyAuthMessage(error?.message ?? "Account creation failed."));
-        return;
-      }
-
-      if (!data.session) {
-        setStatus("success");
-        setMessage(
-          "Account created. Check your email to confirm the address, then sign in."
-        );
-        setMode("sign-in");
-        setSignInState({
-          email: signUpState.email,
-          password: "",
-        });
-        setSignUpState(initialSignUpState);
-        return;
-      }
-
-      const profileResult = await ensureUserProfile(client, data.user, {
-        email: signUpState.email,
-        fullName: signUpState.fullName,
-        organizationName: signUpState.organizationName,
-        role: signUpState.role,
-      });
-
-      if (profileResult.error) {
-        setStatus("error");
-        setMessage(profileResult.error.message);
-        return;
-      }
-
-      const destination = nextPath ?? getDefaultRouteForRole(profileResult.data?.role);
-      setStatus("success");
-      setMessage("Account created. Redirecting to your workspace.");
-      router.replace(destination);
-      router.refresh();
-    } catch (error) {
-      setStatus("error");
-      setMessage(
-        getFriendlyAuthMessage(
-          error instanceof Error ? error.message : "Account creation failed."
-        )
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
   async function handlePasswordRecovery(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!supabaseConfig.isConfigured) {
       setStatus("error");
-      setMessage("Supabase keys are missing. Add them before testing authentication.");
+      setMessage("Authentication is not available yet.");
       return;
     }
 
@@ -300,8 +179,7 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
       <p className="section-eyebrow">Authentication</p>
       <h2 className="section-title">Sign in or create an account</h2>
       <p className="mt-3 max-w-xl text-sm leading-7 text-stone-700">
-        End-app access is now based on real Supabase email and password authentication,
-        backed by a role profile in the `profiles` table.
+        Access your workspace or request a password reset. Account setup is managed by administrators.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -315,17 +193,6 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
           }
         >
           Sign in
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("create-account")}
-          className={
-            mode === "create-account"
-              ? "rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white"
-              : "rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-50"
-          }
-        >
-          Create account
         </button>
         <button
           type="button"
@@ -376,111 +243,6 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
-      ) : mode === "create-account" ? (
-        <form onSubmit={handleCreateAccount} className="mt-6 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-stone-700">Full name</span>
-            <input
-              type="text"
-              required
-              value={signUpState.fullName}
-              onChange={(event) =>
-                setSignUpState((current) => ({ ...current, fullName: event.target.value }))
-              }
-              placeholder="Jordan Lee"
-              className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-            />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="text-sm font-medium text-stone-700">Organization</span>
-              <input
-                type="text"
-                value={signUpState.organizationName}
-                onChange={(event) =>
-                  setSignUpState((current) => ({
-                    ...current,
-                    organizationName: event.target.value,
-                  }))
-                }
-                placeholder="Northstar HealthTech"
-                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-stone-700">Role</span>
-              <select
-                value={signUpState.role}
-                onChange={(event) =>
-                  setSignUpState((current) => ({
-                    ...current,
-                    role: event.target.value as UserRole,
-                  }))
-                }
-                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-              >
-                {userRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {roleLabels[role]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="block">
-            <span className="text-sm font-medium text-stone-700">Email address</span>
-            <input
-              type="email"
-              required
-              value={signUpState.email}
-              onChange={(event) =>
-                setSignUpState((current) => ({ ...current, email: event.target.value }))
-              }
-              placeholder="team@example.com"
-              className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-            />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="text-sm font-medium text-stone-700">Password</span>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={signUpState.password}
-                onChange={(event) =>
-                  setSignUpState((current) => ({ ...current, password: event.target.value }))
-                }
-                placeholder="Minimum 8 characters"
-                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-stone-700">Confirm password</span>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={signUpState.confirmPassword}
-                onChange={(event) =>
-                  setSignUpState((current) => ({
-                    ...current,
-                    confirmPassword: event.target.value,
-                  }))
-                }
-                placeholder="Repeat the password"
-                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
-              />
-            </label>
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting ? "Creating account..." : "Create account"}
-          </button>
-        </form>
       ) : (
         <form onSubmit={handlePasswordRecovery} className="mt-6 space-y-4">
           <label className="block">
@@ -497,8 +259,10 @@ export function AuthPanel({ nextPath }: { nextPath: string | null }) {
             />
           </label>
           <p className="text-sm leading-7 text-stone-700">
-            Supabase will email a recovery link that redirects the user to the in-app
-            password update screen.
+            We will email a recovery link that opens the in-app password update screen.
+          </p>
+          <p className="text-sm leading-7 text-stone-700">
+            Need a new account? Contact an administrator to provision access.
           </p>
           <button
             type="submit"

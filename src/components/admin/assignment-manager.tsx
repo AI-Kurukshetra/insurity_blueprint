@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { roleLabels, userRoles, type UserRole } from "@/lib/auth";
 import type {
   AdminAssignmentsDataResult,
   AdminClaimAssignmentRecord,
@@ -28,6 +29,13 @@ export function AssignmentManager({ data }: AssignmentManagerProps) {
     status: "Active",
     renewalDate: "",
     riskScore: "35",
+  });
+  const [accountCreateForm, setAccountCreateForm] = useState({
+    fullName: "",
+    organizationName: "",
+    role: "policyholder" as UserRole,
+    email: "",
+    password: "",
   });
   const [policyForm, setPolicyForm] = useState({
     profileId: data.profiles[0]?.id ?? "",
@@ -64,8 +72,46 @@ export function AssignmentManager({ data }: AssignmentManagerProps) {
 
   function getFriendlyAdminMessage(message: string) {
     return message.toLowerCase().includes("row-level security")
-      ? "Supabase rejected the write. Apply `supabase/claim-workflow-policies.sql` in the active project."
+      ? "This change could not be saved right now. Please verify access rules and try again."
       : message;
+  }
+
+  async function handleCreateAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(accountCreateForm),
+      });
+
+      const result = (await response.json()) as { error?: string; email?: string | null };
+
+      if (!response.ok) {
+        refreshAfterMutation(result.error ?? "Account creation failed.", "error");
+        return;
+      }
+
+      setAccountCreateForm({
+        fullName: "",
+        organizationName: "",
+        role: "policyholder",
+        email: "",
+        password: "",
+      });
+      refreshAfterMutation(
+        `Account created for ${result.email ?? "the new user"}. They can sign in immediately.`,
+        "success"
+      );
+    } catch (error) {
+      refreshAfterMutation(
+        error instanceof Error ? error.message : "Account creation failed.",
+        "error"
+      );
+    }
   }
 
   async function handleCreatePolicy(event: FormEvent<HTMLFormElement>) {
@@ -220,6 +266,115 @@ export function AssignmentManager({ data }: AssignmentManagerProps) {
       >
         {message}
       </div>
+
+      <article className="rounded-[1.8rem] border border-stone-200 bg-white/85 p-6 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
+        <p className="section-eyebrow">Account Provisioning</p>
+        <h2 className="section-title">Create a user account</h2>
+        <p className="mt-3 text-sm leading-7 text-stone-700">
+          Administrators create accounts here and then assign policy or claim access below.
+        </p>
+        <form onSubmit={handleCreateAccount} className="mt-5 space-y-4">
+          <label className="block">
+            <span className="text-sm font-medium text-stone-700">Full name</span>
+            <input
+              type="text"
+              required
+              value={accountCreateForm.fullName}
+              onChange={(event) =>
+                setAccountCreateForm((current) => ({
+                  ...current,
+                  fullName: event.target.value,
+                }))
+              }
+              placeholder="Jordan Lee"
+              className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-medium text-stone-700">Organization</span>
+              <input
+                type="text"
+                value={accountCreateForm.organizationName}
+                onChange={(event) =>
+                  setAccountCreateForm((current) => ({
+                    ...current,
+                    organizationName: event.target.value,
+                  }))
+                }
+                placeholder="Northstar HealthTech"
+                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-stone-700">Role</span>
+              <select
+                value={accountCreateForm.role}
+                onChange={(event) =>
+                  setAccountCreateForm((current) => ({
+                    ...current,
+                    role: event.target.value as UserRole,
+                  }))
+                }
+                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
+              >
+                {userRoles.map((role) => (
+                  <option key={role} value={role}>
+                    {roleLabels[role]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-medium text-stone-700">Email address</span>
+              <input
+                type="email"
+                required
+                value={accountCreateForm.email}
+                onChange={(event) =>
+                  setAccountCreateForm((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
+                }
+                placeholder="team@example.com"
+                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-stone-700">Temporary password</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={accountCreateForm.password}
+                onChange={(event) =>
+                  setAccountCreateForm((current) => ({
+                    ...current,
+                    password: event.target.value,
+                  }))
+                }
+                placeholder="Minimum 8 characters"
+                className="mt-2 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 outline-none transition focus:border-teal-700"
+              />
+            </label>
+          </div>
+          <button
+            type="submit"
+            disabled={
+              isPending ||
+              !accountCreateForm.fullName ||
+              !accountCreateForm.email ||
+              accountCreateForm.password.length < 8
+            }
+            className="rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isPending ? "Saving..." : "Create account"}
+          </button>
+        </form>
+      </article>
 
       <article className="rounded-[1.8rem] border border-stone-200 bg-white/85 p-6 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
         <p className="section-eyebrow">Policy Creation</p>

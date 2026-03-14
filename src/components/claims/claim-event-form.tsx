@@ -25,7 +25,7 @@ export function ClaimEventForm({ claimId, claimNumber }: ClaimEventFormProps) {
 
     if (!supabaseConfig.isConfigured || !claimId) {
       setStatus("error");
-      setMessage("Live claim events require Supabase configuration and an accessible claim record.");
+      setMessage("Timeline updates are not available for this claim right now.");
       return;
     }
 
@@ -44,7 +44,7 @@ export function ClaimEventForm({ claimId, claimNumber }: ClaimEventFormProps) {
         setStatus("error");
         setMessage(
           error.message.toLowerCase().includes("row-level security")
-            ? "Supabase rejected the claim event insert. Apply `supabase/claim-workflow-policies.sql` in the active project."
+            ? "This update could not be saved right now. Please verify claim access and try again."
             : error.message
         );
         return;

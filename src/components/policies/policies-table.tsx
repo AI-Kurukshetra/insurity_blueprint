@@ -32,8 +32,8 @@ export function PoliciesTable({ records, mode, message }: PoliciesTableProps) {
           </p>
         </article>
         <article className="metric-card">
-          <p className="metric-label">Data mode</p>
-          <p className="metric-value text-xl">{mode === "live" ? "Live" : "Limited"}</p>
+          <p className="metric-label">Workspace status</p>
+          <p className="metric-value text-xl">{mode === "live" ? "Available" : "Review"}</p>
         </article>
       </div>
 

@@ -24,7 +24,7 @@ export function AiTriagePanel({
           </h2>
         </div>
         <span className={`status-pill ${mode === "live" ? "healthy" : "watch"}`}>
-          {mode === "live" ? "Live triage" : "Limited triage"}
+          {mode === "live" ? "Available" : "Review"}
         </span>
       </div>
 

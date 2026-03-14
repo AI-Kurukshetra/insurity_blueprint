@@ -19,7 +19,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <PageShell
       eyebrow="Access"
       title="Sign in to SmartClaim Pro"
-      description="Production app access now uses real Supabase email-password authentication with a linked role profile."
+      description="Secure sign-in for policyholders, brokers, adjusters, and administrators."
     >
       <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <AuthPanel nextPath={nextPath} />

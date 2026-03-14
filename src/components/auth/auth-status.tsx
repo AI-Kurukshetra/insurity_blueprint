@@ -30,7 +30,7 @@ export function AuthStatus() {
   if (!isConfigured) {
     return (
       <div className="rounded-[1.2rem] border border-white/12 bg-white/8 px-4 py-3 text-sm text-slate-200">
-        Supabase auth not configured
+        Authentication unavailable
       </div>
     );
   }

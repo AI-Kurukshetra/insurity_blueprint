@@ -46,9 +46,9 @@ export function ProtectedRoute({
     return (
       <section className="rounded-[1.8rem] border border-stone-200 bg-white/85 p-6 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
         <p className="section-eyebrow">Access</p>
-        <h2 className="section-title">Supabase auth is not configured</h2>
+        <h2 className="section-title">Authentication is unavailable</h2>
         <p className="mt-3 text-sm leading-7 text-stone-700">
-          Add the publishable key and URL before testing authenticated screens.
+          Finish the environment setup before opening authenticated workspaces.
         </p>
       </section>
     );
@@ -83,8 +83,7 @@ export function ProtectedRoute({
         <h2 className="section-title">Profile lookup failed</h2>
         <p className="mt-3 text-sm leading-7 text-rose-900">{authError}</p>
         <p className="mt-3 text-sm leading-7 text-rose-900">
-          Apply the updated `profiles` policies and trigger in `supabase/schema.sql`, then
-          reload the app.
+          Complete account setup, then reload the app.
         </p>
       </section>
     );

@@ -10,7 +10,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import { AiTriagePanel } from "@/components/claims/ai-triage-panel";
 import { LiveStatusBanner } from "@/components/live-status-banner";
 import { PageShell } from "@/components/page-shell";
-import { currency, supabaseConfig } from "@/lib/supabase";
+import { currency } from "@/lib/supabase";
 
 export default async function Home() {
   const authState = await requireServerSession({
@@ -214,40 +214,6 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="rounded-[1.8rem] border border-stone-200 bg-white/80 p-6 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="section-eyebrow">Integration Readiness</p>
-              <h2 className="section-title">Supabase and deployment status</h2>
-            </div>
-            <span className={`status-pill ${supabaseConfig.isConfigured ? "healthy" : "blocked"}`}>
-              {supabaseConfig.isConfigured ? "Supabase keys detected" : "Awaiting Supabase keys"}
-            </span>
-          </div>
-          <div className="mt-5 grid gap-4 lg:grid-cols-3">
-            <article className="rounded-[1.3rem] border border-stone-200 bg-stone-50/80 p-4">
-              <p className="font-semibold text-stone-950">Auth and profiles</p>
-              <p className="mt-2 text-sm leading-7 text-stone-700">
-                Email-password sign-in now creates a role-aware profile for policyholders,
-                brokers, adjusters, and admins.
-              </p>
-            </article>
-            <article className="rounded-[1.3rem] border border-stone-200 bg-stone-50/80 p-4">
-              <p className="font-semibold text-stone-950">Claims and policies</p>
-              <p className="mt-2 text-sm leading-7 text-stone-700">
-                Home dashboard summaries now read live policy and claim data directly from
-                Supabase, without bundled dummy records.
-              </p>
-            </article>
-            <article className="rounded-[1.3rem] border border-stone-200 bg-stone-50/80 p-4">
-              <p className="font-semibold text-stone-950">Documents and deploy</p>
-              <p className="mt-2 text-sm leading-7 text-stone-700">
-                Supabase Storage will handle claim evidence. Vercel deployment happens after
-                repo details and environment variables arrive.
-              </p>
-            </article>
-          </div>
-        </section>
       </ProtectedRoute>
     </PageShell>
   );

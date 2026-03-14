@@ -44,7 +44,7 @@ export function PaymentEntryForm({
 
     if (!supabaseConfig.isConfigured || !claimId) {
       setStatus("error");
-      setMessage("Live payment logging requires Supabase configuration and an accessible claim record.");
+      setMessage("Payment updates are not available for this claim right now.");
       return;
     }
 
@@ -65,7 +65,7 @@ export function PaymentEntryForm({
         setStatus("error");
         setMessage(
           error.message.toLowerCase().includes("row-level security")
-            ? "Supabase rejected the payment insert. Apply `supabase/claim-workflow-policies.sql` in the active project."
+            ? "This payment update could not be saved right now. Please verify claim access and try again."
             : error.message
         );
         return;

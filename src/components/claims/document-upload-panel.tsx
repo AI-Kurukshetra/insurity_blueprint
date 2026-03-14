@@ -22,10 +22,10 @@ function getFriendlyUploadMessage(message: string, stage: "storage" | "documents
 
   if (normalized.includes("row-level security")) {
     if (stage === "storage") {
-      return "Supabase Storage rejected the upload. Apply `supabase/document-upload-policy.sql` and confirm the `claim-documents` bucket exists.";
+      return "Upload access is unavailable right now. Please verify document permissions and try again.";
     }
 
-    return "Supabase rejected the document record insert. Apply `supabase/document-upload-policy.sql` so authenticated users can create `documents` rows for accessible claims.";
+    return "The document could not be attached to this claim right now. Please verify claim access and try again.";
   }
 
   return message;
@@ -47,7 +47,7 @@ export function DocumentUploadPanel({
   const [message, setMessage] = useState(
     initialClaims.length === 0
       ? "No accessible claims are available for upload yet."
-      : "Upload evidence into Supabase Storage and link it to a live claim record."
+      : "Upload evidence and attach it to a claim."
   );
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -59,7 +59,7 @@ export function DocumentUploadPanel({
 
     if (!supabaseConfig.isConfigured) {
       setStatus("error");
-      setMessage("Supabase configuration is missing.");
+      setMessage("Document upload is not available right now.");
       return;
     }
 
@@ -129,8 +129,7 @@ export function DocumentUploadPanel({
       <p className="section-eyebrow">Documents</p>
       <h2 className="section-title">Upload claim evidence</h2>
       <p className="mt-3 text-sm leading-7 text-stone-700">
-        Files are stored in Supabase Storage and linked to the claim record in the
-        `documents` table.
+        Add supporting files so the assigned team can review evidence alongside the claim.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

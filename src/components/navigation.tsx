@@ -46,8 +46,8 @@ export function Navigation() {
             href={item.href}
             className={
               active
-                ? "rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white"
-                : "rounded-full border border-stone-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-white"
+                ? "inline-flex min-h-10 items-center justify-center rounded-full border border-[#f3d27a] bg-[#f3d27a] px-4 py-2 text-sm font-semibold text-stone-950 shadow-[0_10px_30px_rgba(243,210,122,0.2)] transition"
+                : "inline-flex min-h-10 items-center justify-center rounded-full border border-white/25 bg-white/12 px-4 py-2 text-sm font-semibold text-white transition hover:border-[#f3d27a] hover:bg-[#f3d27a] hover:text-stone-950"
             }
           >
             {item.label}

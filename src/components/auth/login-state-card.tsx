@@ -13,7 +13,7 @@ export function LoginStateCard() {
         <p className="section-eyebrow">Session</p>
         <h2 className="section-title">Checking sign-in state</h2>
         <p className="mt-3 text-sm leading-7 text-stone-700">
-          The app is verifying whether a valid Supabase session already exists.
+          The app is verifying whether a valid session already exists.
         </p>
       </article>
     );
@@ -26,20 +26,17 @@ export function LoginStateCard() {
         <h2 className="section-title">What this flow expects</h2>
         <div className="mt-5 space-y-4 text-sm leading-7 text-stone-700">
           <p>
-            Enable email and password auth in Supabase. New accounts store a linked role
-            profile in the `profiles` table.
+            Sign in with an account that has already been provisioned for the correct workspace role.
           </p>
           <p>
-            If email confirmation is on, use the login page as the confirmation redirect
-            target so verified users return to the app cleanly.
+            If email confirmation is enabled, use the verification link in your inbox before signing in.
           </p>
           <p>
             Supported roles are policyholder, broker, adjuster, and admin. Access to the
-            claims, portal, and broker routes is now role-aware.
+            claims, portal, and broker routes is role-aware.
           </p>
           <p>
-            Apply the updated SQL trigger and RLS policies before testing. Without them,
-            the app can authenticate but cannot load the account profile.
+            New accounts are created by administrators. If you need access, request account setup from an admin.
           </p>
         </div>
       </article>
@@ -61,12 +58,12 @@ export function LoginStateCard() {
       <p className="section-eyebrow">Session active</p>
       <h2 className="section-title">You are already signed in</h2>
       <p className="mt-3 text-sm leading-7 text-stone-700">
-        Auth is working for{" "}
+        Signed in as{" "}
         <span className="font-semibold text-stone-950">
           {profile?.full_name ?? user?.email}
         </span>
         {profile ? ` as ${roleLabels[profile.role]}.` : "."} You can move straight into
-        the protected workflow areas.
+        the workspace.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Link

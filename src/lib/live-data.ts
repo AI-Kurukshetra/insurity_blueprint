@@ -601,7 +601,7 @@ function deriveTriageCard(claim: ClaimTriageRow, documentCount: number | null, e
     label,
     tone,
     summary,
-    reasons: reasons.length > 0 ? reasons : ["live claim signals available"],
+    reasons: reasons.length > 0 ? reasons : ["claim signals available"],
   };
 }
 
@@ -628,7 +628,7 @@ function emptyDashboardMetricRecords(): DashboardMetricRecord[] {
     {
       label: "AI triage readiness",
       value: "0%",
-      delta: "no live claims scored",
+      delta: "no claims scored",
       tone: "stable",
     },
   ];
@@ -817,7 +817,7 @@ function buildDashboardTimeline(
         title: `Claim ${claim.claim_number ?? claim.id} entered the queue`,
         detail:
           claim.description ??
-          `${policy?.holder_name ?? "Assigned account"} claim is now visible in the live queue.`,
+          `${policy?.holder_name ?? "Assigned account"} claim is now visible in the queue.`,
         dot: toneFromClaim(claim.status, claim.severity) === "urgent" ? "bg-amber-500" : "bg-emerald-500",
       },
     });
@@ -875,7 +875,7 @@ function buildUnavailablePortalData(message: string): PortalDataResult {
     items: [
       {
         title: "Portal setup required",
-        detail: "This portal needs a live Supabase connection and at least one assigned policy before coverage data can appear.",
+        detail: "This portal needs an assigned policy before coverage data can appear.",
         state: "Blocked",
         tone: "watch",
       },
@@ -976,7 +976,7 @@ export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
     return {
       records: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Policy data is unavailable until live configuration is added.",
+      message: "Policy data is unavailable right now.",
     };
   }
 
@@ -994,7 +994,7 @@ export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
       records: [],
       mode: error ? "fallback" : "live",
       message: error
-        ? "Supabase connected, but policy data is unavailable."
+        ? "Policy data is temporarily unavailable."
         : "No policies are assigned to this account yet.",
     };
   }
@@ -1002,7 +1002,7 @@ export async function loadPolicies(limit = 20): Promise<PoliciesDataResult> {
   return {
     records: data.map(mapPolicy),
     mode: "live",
-    message: "Live policy data loaded from Supabase.",
+    message: "Policy records are ready.",
   };
 }
 
@@ -1011,7 +1011,7 @@ export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
     return {
       records: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Claim data is unavailable until live configuration is added.",
+      message: "Claim data is unavailable right now.",
     };
   }
 
@@ -1029,7 +1029,7 @@ export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
       records: [],
       mode: error ? "fallback" : "live",
       message: error
-        ? "Supabase connected, but claim data is unavailable."
+        ? "Claim data is temporarily unavailable."
         : "No claims are assigned to this account yet.",
     };
   }
@@ -1037,7 +1037,7 @@ export async function loadClaims(limit = 20): Promise<ClaimsDataResult> {
   return {
     records: data.map(mapClaim),
     mode: "live",
-    message: "Live claim data loaded from Supabase.",
+    message: "Claim records are ready.",
   };
 }
 
@@ -1046,7 +1046,7 @@ export async function loadAiTriage(limit = 3): Promise<AiTriageDataResult> {
     return {
       records: unavailableAiTriageRecords(),
       mode: "fallback",
-      message: "Supabase keys are missing. AI triage is unavailable until live claims are configured.",
+      message: "AI recommendations are unavailable right now.",
     };
   }
 
@@ -1077,7 +1077,7 @@ export async function loadAiTriage(limit = 3): Promise<AiTriageDataResult> {
     return {
       records: [],
       mode: "live",
-      message: "No accessible claims are available for AI triage yet.",
+      message: "No accessible claims are available for AI review yet.",
     };
   }
 
@@ -1133,8 +1133,8 @@ export async function loadAiTriage(limit = 3): Promise<AiTriageDataResult> {
     mode: "live",
     message:
       documentsError || eventsError
-        ? "AI triage is live from claim records, but related document or event signals are partially unavailable."
-        : "AI triage is being derived from live claims, uploaded evidence, and claim-event history.",
+        ? "AI recommendations are available, but some supporting claim signals are unavailable."
+        : "AI recommendations are ready.",
   };
 }
 
@@ -1145,11 +1145,11 @@ export async function loadDashboardSummary(
     return {
       metrics: emptyDashboardMetricRecords(),
       timeline: emptyDashboardTimelineRecords(
-        "Connect Supabase and load live records to populate the dashboard timeline."
+        "Complete setup and add activity to populate the dashboard timeline."
       ),
       brokerAccounts: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Dashboard data is unavailable until live configuration is added.",
+      message: "Dashboard data is unavailable right now.",
     };
   }
 
@@ -1196,11 +1196,11 @@ export async function loadDashboardSummary(
     return {
       metrics: emptyDashboardMetricRecords(),
       timeline: emptyDashboardTimelineRecords(
-        "Dashboard queries failed before live activity could be loaded."
+        "Dashboard activity could not be loaded."
       ),
       brokerAccounts: [],
       mode: "fallback",
-      message: "Dashboard summary queries failed. Live summary data is unavailable right now.",
+      message: "Dashboard summary is temporarily unavailable.",
     };
   }
 
@@ -1246,7 +1246,7 @@ export async function loadDashboardSummary(
     timeline:
       timeline.length > 0
         ? timeline
-        : emptyDashboardTimelineRecords("No recent live activity is available yet."),
+        : emptyDashboardTimelineRecords("No recent activity is available yet."),
     brokerAccounts,
     mode:
       documentsError || eventsError || paymentsError
@@ -1254,8 +1254,8 @@ export async function loadDashboardSummary(
         : "live",
     message:
       documentsError || eventsError || paymentsError
-        ? "Dashboard metrics are live from claims and policies, but some timeline or payment signals are unavailable."
-        : "Dashboard summary is rendering live policy, claim, and operational activity data from Supabase.",
+        ? "Dashboard metrics are available, but some timeline or payment updates are unavailable."
+        : "Dashboard summary is ready.",
   };
 }
 
@@ -1315,7 +1315,7 @@ export async function loadDocuments(limit = 20): Promise<DocumentsDataResult> {
     return {
       records: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Document upload is unavailable.",
+      message: "Document records are unavailable right now.",
     };
   }
 
@@ -1332,7 +1332,7 @@ export async function loadDocuments(limit = 20): Promise<DocumentsDataResult> {
     return {
       records: [],
       mode: "fallback",
-      message: "Document list is unavailable until the latest SQL and storage policies are applied.",
+      message: "Document list is temporarily unavailable.",
     };
   }
 
@@ -1367,7 +1367,7 @@ export async function loadDocuments(limit = 20): Promise<DocumentsDataResult> {
       };
     }),
     mode: "live",
-    message: "Recent claim documents loaded from Supabase.",
+    message: "Recent claim documents are ready.",
   };
 }
 
@@ -1412,7 +1412,7 @@ export async function loadPortalClaimsData(
     return {
       records: [],
       mode: "fallback",
-      message: "Portal claims are unavailable until the latest assignment and claim policies are applied.",
+      message: "Portal claims are temporarily unavailable.",
     };
   }
 
@@ -1427,7 +1427,7 @@ export async function loadPortalClaimsData(
   return {
     records: data.map(mapClaim),
     mode: "live",
-    message: "Portal claims are scoped to the assigned live policies.",
+    message: "Portal claims are ready.",
   };
 }
 
@@ -1472,7 +1472,7 @@ export async function loadPortalDocumentsData(
     return {
       records: [],
       mode: "fallback",
-      message: "Portal documents are unavailable until the latest document-access policies are applied.",
+      message: "Portal documents are temporarily unavailable.",
     };
   }
 
@@ -1502,7 +1502,7 @@ export async function loadPortalDocumentsData(
       };
     }),
     mode: "live",
-    message: "Portal documents are scoped to the assigned live policies.",
+    message: "Portal documents are ready.",
   };
 }
 
@@ -1514,7 +1514,7 @@ export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailR
       documents: [],
       payments: [],
       mode: "fallback",
-      message: "Live claim detail requires Supabase configuration.",
+      message: "Claim detail is unavailable right now.",
     };
   }
 
@@ -1535,8 +1535,8 @@ export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailR
       payments: [],
       mode: error ? "fallback" : "live",
       message: error
-        ? "Claim detail query failed. Live claim detail is unavailable right now."
-        : "Claim not found or not accessible in Supabase.",
+        ? "Claim detail is temporarily unavailable."
+        : "Claim not found or not accessible.",
     };
   }
 
@@ -1614,15 +1614,15 @@ export async function loadClaimDetail(claimNumber: string): Promise<ClaimDetailR
     mode: "live",
     message:
       eventsError || documentsError || paymentsError
-        ? "Claim loaded, but some related event, document, or payment records are unavailable until the latest SQL policies are applied."
-        : "Claim detail loaded from Supabase.",
+        ? "Claim loaded, but some related events, documents, or payments are unavailable."
+        : "Claim detail is ready.",
   };
 }
 
 export async function loadPortalData(profile: UserProfile | null): Promise<PortalDataResult> {
   if (!supabaseConfig.isConfigured || !profile) {
     return buildUnavailablePortalData(
-      "Live portal data requires Supabase configuration and an authenticated assigned account."
+      "Portal data is unavailable right now."
     );
   }
 
@@ -1667,7 +1667,7 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
 
   if (error) {
     return buildUnavailablePortalData(
-      "Portal data could not be loaded from Supabase."
+      "Portal data is temporarily unavailable."
     );
   }
 
@@ -1712,7 +1712,7 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
     items: [
       {
         title: "Submit supporting documents",
-        detail: `Claim evidence can be attached against ${policy.id}. Coverage data is now rendered from the live policy record.`,
+        detail: `Claim evidence can be attached against ${policy.id}. Coverage details are available in this workspace.`,
         state: "Available",
         tone: "healthy",
       },
@@ -1720,9 +1720,9 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
         title: "Track claim status",
         detail:
           openClaims > 0
-            ? `${openClaims} live claim ${openClaims === 1 ? "is" : "are"} linked to this policy and visible in the workspace.`
-            : "No live claims are linked yet. New claims will appear here after first notice of loss submission.",
-        state: openClaims > 0 ? "Live" : "Ready",
+            ? `${openClaims} claim ${openClaims === 1 ? "is" : "are"} linked to this policy and visible in the workspace.`
+            : "No claims are linked yet. New claims will appear here after first notice of loss submission.",
+        state: openClaims > 0 ? "Active" : "Ready",
         tone: openClaims > 0 ? "watch" : "healthy",
       },
       {
@@ -1736,7 +1736,7 @@ export async function loadPortalData(profile: UserProfile | null): Promise<Porta
       },
     ],
     mode: "live",
-    message: "Portal is rendering only the policies assigned to this live account.",
+    message: "Portal access is ready.",
   };
 }
 
@@ -1745,7 +1745,7 @@ export async function loadBrokerData(profile: UserProfile | null): Promise<Broke
     return {
       accounts: [],
       mode: "fallback",
-      message: "Supabase keys are missing. Broker data is unavailable until live configuration is added.",
+      message: "Broker data is unavailable right now.",
     };
   }
 
@@ -1792,7 +1792,7 @@ export async function loadBrokerData(profile: UserProfile | null): Promise<Broke
       mode: policiesError || claimsError ? "fallback" : "live",
       message:
         policiesError || claimsError
-          ? "Live broker book is unavailable right now."
+          ? "Broker book data is temporarily unavailable."
           : "No accounts are assigned to this broker yet.",
     };
   }
@@ -1836,8 +1836,8 @@ export async function loadBrokerData(profile: UserProfile | null): Promise<Broke
     mode: "live",
     message:
       profile?.role === "admin"
-        ? "Broker workspace is rendering live account and open-claim data from Supabase."
-        : "Broker workspace is rendering only the policies assigned to this broker.",
+        ? "Broker workspace is ready."
+        : "Assigned broker accounts are ready.",
   };
 }
 

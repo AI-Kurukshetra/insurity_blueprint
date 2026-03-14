@@ -16,7 +16,7 @@ export default async function AdminPage() {
     <PageShell
       eyebrow="Administration"
       title="Assignment control center"
-      description="Manage which users can access which policies and claims without dropping back to raw SQL."
+      description="Manage which users can access which policies and claims from one admin workspace."
     >
       <ProtectedRoute
         title="Assignment control center"

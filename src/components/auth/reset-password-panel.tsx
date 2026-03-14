@@ -13,7 +13,7 @@ export function ResetPasswordPanel() {
   const [checkingSession, setCheckingSession] = useState(supabaseConfig.isConfigured);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState(
-    "Open this screen from the password reset email so Supabase can attach the recovery session."
+    "Open this screen from the password reset email to continue."
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,7 +70,7 @@ export function ResetPasswordPanel() {
 
     if (!supabaseConfig.isConfigured) {
       setStatus("error");
-      setMessage("Supabase keys are missing. Add them before testing authentication.");
+      setMessage("Password reset is not available yet.");
       return;
     }
 
@@ -112,7 +112,7 @@ export function ResetPasswordPanel() {
         <p className="section-eyebrow">Recovery</p>
         <h2 className="section-title">Checking reset session</h2>
         <p className="mt-3 text-sm leading-7 text-stone-700">
-          Verifying the password recovery link from Supabase.
+          Verifying your password recovery link.
         </p>
       </article>
     );

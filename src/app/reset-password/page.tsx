@@ -6,7 +6,7 @@ export default function ResetPasswordPage() {
     <PageShell
       eyebrow="Recovery"
       title="Reset account password"
-      description="Use the recovery link from Supabase to attach a reset session and choose a new password."
+      description="Use the recovery link from your email to choose a new password."
     >
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <ResetPasswordPanel />
@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
           <h2 className="section-title">Password recovery flow</h2>
           <div className="mt-5 space-y-4 text-sm leading-7 text-stone-700">
             <p>Request a reset email from the login page.</p>
-            <p>Open the Supabase recovery link on the same browser.</p>
+            <p>Open the recovery link on the same browser.</p>
             <p>Set the new password on this screen.</p>
             <p>Return to `/login` and sign back into the application.</p>
           </div>
