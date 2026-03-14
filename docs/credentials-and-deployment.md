@@ -18,7 +18,6 @@ Legacy fallback still supported in code:
 ### Needed Later
 
 - Vercel access or deployment authorization
-- GitHub repo details from the hackathon committee
 
 ## Authentication Recommendation
 
@@ -70,15 +69,13 @@ Current local project status:
 - Supabase publishable key received
 - Service role key not needed yet
 
-## Repo Details Placeholder
+## Repo Details
 
-When the hackathon committee provides the repo details, capture them here:
-
-- repository URL:
-- repository visibility:
-- default branch:
-- push instructions:
-- any submission branch naming rule:
+- repository URL: `https://github.com/AI-Kurukshetra/insurity_blueprint`
+- repository visibility: GitHub-hosted repository
+- default branch: `main`
+- current push target: `origin/main`
+- latest MVP push: commit `6eb3701` with message `Complete SmartClaim Pro MVP`
 
 ## Deployment Plan
 
@@ -91,10 +88,35 @@ When the hackathon committee provides the repo details, capture them here:
 
 ### Vercel
 
-- connect repo or deploy from local project
-- add environment variables
-- deploy preview
-- verify production URL
+1. Sign in to Vercel and create or open the target project.
+2. Import the GitHub repository `AI-Kurukshetra/insurity_blueprint`.
+3. Confirm the production branch is `main`.
+4. Add these environment variables in Vercel:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+5. Leave `SUPABASE_SERVICE_ROLE_KEY` empty unless a new privileged server-side flow is added.
+6. Trigger the first deployment.
+7. Open the deployed URL and run the route smoke test from `docs/mvp-readiness-checklist.md`.
+
+### Vercel Preparation Checklist
+
+Before clicking deploy, confirm all of these:
+
+- the latest Supabase SQL files have been applied in the target project
+- the four test users exist
+- broker and policyholder assignments exist
+- at least one claim has documents and timeline data
+- `cmd /c npm run lint` passes locally
+- `cmd /c npm run build` passes locally
+- the repo on GitHub matches the latest local MVP state
+
+### After Deployment
+
+- record the Vercel project name
+- record the production URL
+- verify `/login`, `/`, `/claims`, `/portal`, `/broker`, and `/admin`
+- verify one admin flow and one non-admin flow on the live deployment
+- update this file with the final deployed URL
 
 ## Git Workflow Recommendation
 
@@ -104,7 +126,6 @@ When the hackathon committee provides the repo details, capture them here:
 
 ## Notes
 
-- GitHub details are not required to continue local development
 - Vercel details are not required until deploy time
 - Supabase details are now available for client-side integration
 - the final route, SQL, and demo verification checklist lives in `docs/mvp-readiness-checklist.md`

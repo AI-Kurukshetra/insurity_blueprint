@@ -89,7 +89,8 @@ Do not deploy if either command fails.
 
 Before deploy:
 
-- confirm repo target and branch
+- confirm repo target is `https://github.com/AI-Kurukshetra/insurity_blueprint`
+- confirm branch is `main`
 - confirm Vercel project access
 - add the same environment variables used locally
 
@@ -98,6 +99,7 @@ After deploy:
 - open production URL
 - repeat the route smoke test with at least admin and one non-admin user
 - verify login, protected redirects, claim detail, and document visibility
+- record the deployed URL in `docs/credentials-and-deployment.md`
 
 ## 7. Demo Data Quality
 

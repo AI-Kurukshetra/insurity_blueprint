@@ -146,7 +146,6 @@ Product direction:
 
 ## Waiting On User
 
-- hackathon committee GitHub repo details
 - Vercel deployment details or deployment authorization when ready
 
 ## Suggested Next Task
